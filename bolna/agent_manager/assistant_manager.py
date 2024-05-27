@@ -1,6 +1,7 @@
 import time
 from .base_manager import BaseManager
 from .task_manager import TaskManager
+from datetime import datetime
 from bolna.helpers.logger_config import configure_logger
 from pymongo import MongoClient
 import os
@@ -65,11 +66,15 @@ class AssistantManager(BaseManager):
 
                 # removing context_data from non-conversational tasks
                 self.context_data = None
-            task_output['model'] = task_manager.task_config["tools_config"]["llm_agent"]["model"]
-            task_output['temperature'] = task_manager.task_config["tools_config"]["llm_agent"]["temperature"]
-            task_output['max_tokens'] = task_manager.task_config["tools_config"]["llm_agent"]["max_tokens"]
-            task_output['synthesizer_voice'] = task_manager.synthesizer_voice
-            task_output['synthesizer_provider'] = task_manager.synthesizer_provider
+            task_output['created_at'] = datetime.now().isoformat()
+            # task_output['model'] = task_manager.task_config["tools_config"]["llm_agent"]["model"]
+            # task_output['temperature'] = task_manager.task_config["tools_config"]["llm_agent"]["temperature"]
+            # task_output['max_tokens'] = task_manager.task_config["tools_config"]["llm_agent"]["max_tokens"]
+            # task_output['synthesizer_voice'] = task_manager.synthesizer_voice
+            # task_output['synthesizer_provider'] = task_manager.synthesizer_provider
+            task_output['task_config'] = task_manager.task_config
+            task_output['summarized_data'] = task_manager.summarized_data
+            task_output['extracted_data'] = task_manager.extracted_data
             db['execution_metadata'].insert_one(task_output)
             if task["task_type"] == "extraction":
                 input_parameters["extraction_details"] = task_output["extracted_data"]
