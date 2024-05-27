@@ -28,7 +28,7 @@ logger = configure_logger(__name__)
 
 
 class TaskManager(BaseManager):
-    def __init__(self, assistant_name,should_record, task_id, task, ws, input_parameters=None, context_data=None,
+    def __init__(self, assistant_name, task_id, task, ws, input_parameters=None, context_data=None,
                  assistant_id=None, run_id=None, connected_through_dashboard=False, cache=None,
                  input_queue=None, conversation_history=None, output_queue=None, yield_chunks=True, **kwargs):
         super().__init__()
@@ -76,7 +76,7 @@ class TaskManager(BaseManager):
         self.input_parameters = input_parameters
         
         # Recording
-        self.should_record = False
+        self.should_record = True
 
         logger.info(f'should_record --> {self.should_record}')
         self.conversation_recording= {
