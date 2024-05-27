@@ -75,7 +75,9 @@ class TaskManager(BaseManager):
         self.input_parameters = input_parameters
         
         # Recording
-        self.should_record = False
+        self.should_record = True
+
+        logger.info(f'should_record --> {self.should_record}')
         self.conversation_recording= {
             "input": {
                 'data': b'',
