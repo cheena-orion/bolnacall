@@ -93,8 +93,8 @@ class TaskManager(BaseManager):
         if task_id == 0:
             self.default_io = self.task_config["tools_config"]["output"]["provider"] == 'default'
             logger.info(f"Connected via websocket")
-            #self.should_record = self.task_config["tools_config"]["output"]["provider"] == 'default' and self.enforce_streaming #In this case, this is a websocket connection and we should record 
-            self.should_record = True
+            self.should_record = self.task_config["tools_config"]["output"]["provider"] == 'default' and self.enforce_streaming #In this case, this is a websocket connection and we should record 
+            #self.should_record = True
             logger.info(f'should_record 2------> {self.should_record}')
             self.__setup_input_handlers(connected_through_dashboard, input_queue, self.should_record)
         self.__setup_output_handlers(connected_through_dashboard, output_queue)
@@ -1466,7 +1466,9 @@ class TaskManager(BaseManager):
                           "latency_dict": self.latency_dict}
 
                 logger.info(f'should_record 5--> {self.should_record}')
-                if self.should_record:
+                #if self.should_record:
+                
+                
                     output['recording_url'] = await save_audio_file_to_s3(self.conversation_recording, self.sampling_rate, self.assistant_id, self.run_id)
                     logger.info(f"srecording_url--> {output['recording_url']}")
 
