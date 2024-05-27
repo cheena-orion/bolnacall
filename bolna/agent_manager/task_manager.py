@@ -28,9 +28,9 @@ logger = configure_logger(__name__)
 
 
 class TaskManager(BaseManager):
-    def __init__(self, assistant_name, task_id, task, ws, input_parameters=None, context_data=None,
+    def __init__(self, assistant_name,should_record, task_id, task, ws, input_parameters=None, context_data=None,
                  assistant_id=None, run_id=None, connected_through_dashboard=False, cache=None,
-                 input_queue=None, conversation_history=None, output_queue=None, yield_chunks=True, **kwargs, should_record):
+                 input_queue=None, conversation_history=None, output_queue=None, yield_chunks=True, **kwargs):
         super().__init__()
         # Latency and logging 
         self.latency_dict = defaultdict(dict)
