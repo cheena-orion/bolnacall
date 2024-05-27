@@ -2,9 +2,20 @@ import time
 from .base_manager import BaseManager
 from .task_manager import TaskManager
 from bolna.helpers.logger_config import configure_logger
-
+from pymongo import MongoClient
+import os
 logger = configure_logger(__name__)
-
+def mongodb_connection():
+    """
+    Establishes a connection to the MongoDB database using the environment variables 'MONGO_URL' and 'MONGO_DATABASE'.
+    """
+    try:
+        mongo_client = MongoClient(os.getenv('MONGODB_URI'))
+        db = mongo_client[os.getenv('MONGO_DATABASE')]
+    except ValueError as e:
+        raise ValueError(f"Error in mongodb_connection: {e.args[0]}")
+    return db
+db = mongodb_connection()
 
 class AssistantManager(BaseManager):
     def __init__(self, agent_config, ws=None, assistant_id=None, context_data=None, conversation_history=None,
@@ -54,7 +65,12 @@ class AssistantManager(BaseManager):
 
                 # removing context_data from non-conversational tasks
                 self.context_data = None
-            logger.info(f"task_output {task_output}")
+            task_output['model'] = task_manager.task_config["tools_config"]["llm_agent"]["model"]
+            task_output['temperature'] = task_manager.task_config["tools_config"]["llm_agent"]["temperature"]
+            task_output['max_tokens'] = task_manager.task_config["tools_config"]["llm_agent"]["max_tokens"]
+            task_output['synthesizer_voice'] = task_manager.synthesizer_voice
+            task_output['synthesizer_provider'] = task_manager.synthesizer_provider
+            db['execution_metadata'].insert_one(task_output)
             if task["task_type"] == "extraction":
                 input_parameters["extraction_details"] = task_output["extracted_data"]
         logger.info("Done with execution of the agent")
