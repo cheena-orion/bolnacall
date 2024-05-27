@@ -44,7 +44,8 @@ class TaskManager(BaseManager):
         self.task_config = task
         self.context_data = context_data
         self.connected_through_dashboard = connected_through_dashboard
-        self.enforce_streaming = kwargs.get("enforce_streaming", False)
+        #self.enforce_streaming = kwargs.get("enforce_streaming", False)//Commented
+        self.enforce_streaming = kwargs.get("enforce_streaming", True)
         self.callee_silent = True
         self.yield_chunks = yield_chunks
         # Set up communication queues between processes
@@ -93,6 +94,7 @@ class TaskManager(BaseManager):
             self.default_io = self.task_config["tools_config"]["output"]["provider"] == 'default'
             logger.info(f"Connected via websocket")
             self.should_record = self.task_config["tools_config"]["output"]["provider"] == 'default' and self.enforce_streaming #In this case, this is a websocket connection and we should record 
+            logger.info(f'should_record 2--> {self.should_record}')
             self.__setup_input_handlers(connected_through_dashboard, input_queue, self.should_record)
         self.__setup_output_handlers(connected_through_dashboard, output_queue)
 
@@ -322,6 +324,7 @@ class TaskManager(BaseManager):
             raise "Other input handlers not supported yet"
 
     def __setup_input_handlers(self, connected_through_dashboard, input_queue, should_record):
+        logger.info(f'inside __setup_input_handlers')
         if self.task_config["tools_config"]["input"]["provider"] in SUPPORTED_INPUT_HANDLERS.keys():
             logger.info(f"Connected through dashboard {connected_through_dashboard}")
             input_kwargs = {"queues": self.queues,
@@ -329,7 +332,9 @@ class TaskManager(BaseManager):
                             "input_types": get_required_input_types(self.task_config),
                             "mark_set": self.mark_set,
                             "connected_through_dashboard": self.connected_through_dashboard}
+            logger.info(f'should_record 3--> {self.should_record}  {should_record}')
             if should_record:
+                logger.info(f'conversation_recording--> {self.conversation_recording}  ')
                 input_kwargs['conversation_recording'] = self.conversation_recording
 
             if connected_through_dashboard:
@@ -1451,7 +1456,7 @@ class TaskManager(BaseManager):
             
             if self._is_conversation_task() and self.backchanneling_task is not None:
                 self.backchanneling_task.cancel()
-            
+            logger.info(f'should_record 4--> {self.should_record}')
             if self.task_id == 0:
                 output = {"messages": self.history, "conversation_time": time.time() - self.start_time,
                           "label_flow": self.label_flow, "call_sid": self.call_sid, "stream_sid": self.stream_sid,
@@ -1459,8 +1464,11 @@ class TaskManager(BaseManager):
                           "synthesizer_characters": self.tools['synthesizer'].get_synthesized_characters(), "ended_by_assistant": self.ended_by_assistant,
                           "latency_dict": self.latency_dict}
 
+                logger.info(f'should_record 5--> {self.should_record}')
                 if self.should_record:
                     output['recording_url'] = await save_audio_file_to_s3(self.conversation_recording, self.sampling_rate, self.assistant_id, self.run_id)
+                    logger.info(f'srecording_url--> {output['recording_url']}')
+
 
             else:
                 output = self.input_parameters
