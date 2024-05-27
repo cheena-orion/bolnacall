@@ -1467,7 +1467,7 @@ class TaskManager(BaseManager):
                 logger.info(f'should_record 5--> {self.should_record}')
                 if self.should_record:
                     output['recording_url'] = await save_audio_file_to_s3(self.conversation_recording, self.sampling_rate, self.assistant_id, self.run_id)
-                    logger.info(f'srecording_url--> {output['recording_url']}')
+                    logger.info(f"srecording_url--> {output['recording_url']}")
 
 
             else:
