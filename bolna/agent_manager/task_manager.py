@@ -30,7 +30,7 @@ logger = configure_logger(__name__)
 class TaskManager(BaseManager):
     def __init__(self, assistant_name, task_id, task, ws, input_parameters=None, context_data=None,
                  assistant_id=None, run_id=None, connected_through_dashboard=False, cache=None,
-                 input_queue=None, conversation_history=None, output_queue=None, yield_chunks=True, **kwargs):
+                 input_queue=None, conversation_history=None, output_queue=None, yield_chunks=True, **kwargs, should_record):
         super().__init__()
         # Latency and logging 
         self.latency_dict = defaultdict(dict)
@@ -76,7 +76,7 @@ class TaskManager(BaseManager):
         self.input_parameters = input_parameters
         
         # Recording
-        self.should_record = True
+        self.should_record = False
 
         logger.info(f'should_record --> {self.should_record}')
         self.conversation_recording= {
@@ -1466,11 +1466,9 @@ class TaskManager(BaseManager):
                           "latency_dict": self.latency_dict}
 
                 logger.info(f'should_record 5--> {self.should_record}')
-                #if self.should_record:
-                
-                
-                output['recording_url'] = await save_audio_file_to_s3(self.conversation_recording, self.sampling_rate, self.assistant_id, self.run_id)
-                logger.info(f"srecording_url--> {output['recording_url']}")
+                if self.should_record:
+                    output['recording_url'] = await save_audio_file_to_s3(self.conversation_recording, self.sampling_rate, self.assistant_id, self.run_id)
+                    logger.info(f"srecording_url--> {output['recording_url']}")
 
 
             else:
